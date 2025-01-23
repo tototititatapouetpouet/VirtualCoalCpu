@@ -7,7 +7,7 @@ int main(int argc, char** argv)
 {
     ConsoleFramebuffer cfb;
     
-    Coal::CPU cpu;
+    Coal::Computer computer;
 
     /*
     Coal::InstructionList instructionList = {
@@ -26,14 +26,20 @@ int main(int argc, char** argv)
     */
 
     Coal::InstructionList instructionList = {
-        "MOV 42 r0"
+        "MOV 123 r0"
+      , "DISPN 0 0 r0"
+      , "ADD r5 48 r6"
+      , "DISP 0 0 r6"
+      , "DIV r0 100 r5"
+      , "DISP 0 0 65"
       , "MOV 42 r1"
       , "JE r0 r1 4"
       , "MOV 32 r5"
       , "MOV 30 r4"
     };
 
-    Coal::showCPU(cfb, cpu);
+    Coal::showCPU(cfb, computer.cpu);
+    Coal::showScreen(cfb, computer.screen);
     cfb.show();
 
     while (!instructionList.empty())
@@ -41,7 +47,7 @@ int main(int argc, char** argv)
         ::getchar();
         try
         {
-            cpu.processOneInstruction(instructionList);
+            computer.cpu.processOneInstruction(instructionList);
         }
         catch (std::runtime_error& e)
         {
@@ -49,7 +55,8 @@ int main(int argc, char** argv)
             return 0;
         }
 
-        Coal::showCPU(cfb, cpu);
+        Coal::showCPU(cfb, computer.cpu);
+        Coal::showScreen(cfb, computer.screen);
         cfb.show();
     }
 }

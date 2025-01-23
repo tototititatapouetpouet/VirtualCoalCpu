@@ -69,6 +69,19 @@ namespace Coal
         }
     }
 
+    void showScreen(ConsoleFramebuffer& cfb, const Screen& screen)
+    {
+        for (int row = 0; row < screen.getHeight(); ++row)
+            for (int col = 0; col < screen.getWidth(); ++col)
+                cfb.setCharacter(row, col + 20, screen.getChar(row, col), Green, Blue);
+    }
+
+    CPU::CPU(Computer& computer) : m_computer(computer)
+    { }
+
+    Computer& CPU::getComputer() { return m_computer; }
+    const Computer& CPU::getComputer() const { return m_computer; }
+
     const Register& CPU::getRegister(int idx)const { return m_registers[idx]; }
     Register& CPU::getRegister(int idx) { return m_registers[idx]; }
 
@@ -86,4 +99,32 @@ namespace Coal
         
         getInstructionPointerRegister().setValue(getInstructionPointerRegister().getValue() + 1);
     }
+
+    Screen::Screen() : m_width(40), m_height(16)
+    {
+        m_data.resize(m_width * m_height, ' ');
+    }
+
+    const int Screen::getHeight() const
+    {
+        return m_height;
+    }
+
+    const int Screen::getWidth() const
+    {
+        return m_width;
+    }
+
+    const char& Screen::getChar(int row, int col) const
+    {
+        return m_data[row * m_width + col];
+    }
+    
+    void Screen::setChar(int row, int col, char value)
+    {
+        m_data[row * m_width + col] = value;
+    }
+
+    Computer::Computer() : cpu(*this)
+    { }
 }

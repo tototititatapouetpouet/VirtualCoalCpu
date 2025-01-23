@@ -1,7 +1,145 @@
 #include "Instruction.h"
+#include "CoalComputer.h"
 
 namespace Coal
 {
+    class Mov : public IInstruction
+    {
+    public:
+        Mov(const TokenList& tokenList) : IInstruction(tokenList, 3), src(tokenList[1]), dest(tokenList[2])
+        {
+        }
+
+        void apply(CPU& cpu) override
+        {
+            dest.affect(cpu, src.evaluate(cpu));
+        }
+
+        OperandAccessor src;
+        OperandAccessor dest;
+    };
+
+    class Add : public IInstructionWith2InputOperandsAnd1OutputOperand
+    {
+    public:
+        Add(const TokenList& tokenList) : IInstructionWith2InputOperandsAnd1OutputOperand(tokenList)
+        {
+        }
+
+        void apply(CPU& cpu) override
+        {
+            dest.affect(cpu, src1.evaluate(cpu) + src2.evaluate(cpu));
+        }
+    };
+
+    class Sub : public IInstructionWith2InputOperandsAnd1OutputOperand
+    {
+    public:
+        Sub(const TokenList& tokenList) : IInstructionWith2InputOperandsAnd1OutputOperand(tokenList)
+        {
+        }
+
+        void apply(CPU& cpu) override
+        {
+            dest.affect(cpu, src1.evaluate(cpu) - src2.evaluate(cpu));
+        }
+    };
+
+    class Mul : public IInstructionWith2InputOperandsAnd1OutputOperand
+    {
+    public:
+        Mul(const TokenList& tokenList) : IInstructionWith2InputOperandsAnd1OutputOperand(tokenList)
+        {
+        }
+
+        void apply(CPU& cpu) override
+        {
+            dest.affect(cpu, src1.evaluate(cpu) * src2.evaluate(cpu));
+        }
+    };
+
+    class Div : public IInstructionWith2InputOperandsAnd1OutputOperand
+    {
+    public:
+        Div(const TokenList& tokenList) : IInstructionWith2InputOperandsAnd1OutputOperand(tokenList)
+        {
+        }
+
+        void apply(CPU& cpu) override
+        {
+            if (src2.evaluate(cpu) == 0)
+                throw DivisionByZeroException();
+
+            dest.affect(cpu, src1.evaluate(cpu) / src2.evaluate(cpu));
+        }
+    };
+
+    class Je : public IInstructionWith3InputOperands
+    {
+    public:
+        Je(const TokenList& tokenList) : IInstructionWith3InputOperands(tokenList)
+        {
+        }
+
+        void apply(CPU& cpu) override
+        {
+            if (src1.evaluate(cpu) == src2.evaluate(cpu))
+            {
+                OperandAccessor ip("r15");
+                ip.affect(cpu, src3.evaluate(cpu) - 1);
+            }
+        }
+    };
+
+    class Jne : public IInstructionWith3InputOperands
+    {
+    public:
+        Jne(const TokenList& tokenList) : IInstructionWith3InputOperands(tokenList)
+        {
+        }
+
+        void apply(CPU& cpu) override
+        {
+            if (src1.evaluate(cpu) != src2.evaluate(cpu))
+            {
+                OperandAccessor ip("r15");
+                ip.affect(cpu, src3.evaluate(cpu) - 1);
+            }
+        }
+    };
+
+    class Disp : public IInstructionWith3InputOperands
+    {
+    public:
+        Disp(const TokenList& tokenList) : IInstructionWith3InputOperands(tokenList)
+        {
+        }
+
+        void apply(CPU& cpu) override
+        {
+            cpu.getComputer().screen.setChar(src1.evaluate(cpu), src2.evaluate(cpu), src3.evaluate(cpu));
+        }
+    };
+
+    class Dispn : public IInstructionWith3InputOperands
+    {
+    public:
+        Dispn(const TokenList& tokenList) : IInstructionWith3InputOperands(tokenList)
+        {
+        }
+
+        void apply(CPU& cpu) override
+        {
+            unsigned char valueToDisplay = src3.evaluate(cpu);
+            unsigned char cent = valueToDisplay / 100;
+            unsigned char dizaine = (valueToDisplay - cent * 100) / 10;
+            unsigned char unity = valueToDisplay % 10;
+
+            cpu.getComputer().screen.setChar(src1.evaluate(cpu), src2.evaluate(cpu) + 0, '0' + cent);
+            cpu.getComputer().screen.setChar(src1.evaluate(cpu), src2.evaluate(cpu) + 1, '0' + dizaine);
+            cpu.getComputer().screen.setChar(src1.evaluate(cpu), src2.evaluate(cpu) + 2, '0' + unity);
+        }
+    };
 
     InstructionFactoryOldSchoolFashioned& getInstructionFactory()
     {
@@ -41,6 +179,8 @@ namespace Coal
         registerType("DIV", [](const TokenList& tokenList) { return new Div(tokenList); });
         registerType("JE", [](const TokenList& tokenList) { return new Je(tokenList); });
         registerType("JNE", [](const TokenList& tokenList) { return new Jne(tokenList); });
+        registerType("DISP", [](const TokenList& tokenList) { return new Disp(tokenList); });
+        registerType("DISPN", [](const TokenList& tokenList) { return new Dispn(tokenList); });
     }
 
 

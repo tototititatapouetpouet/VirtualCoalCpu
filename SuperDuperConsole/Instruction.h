@@ -101,21 +101,6 @@ namespace Coal
 
     InstructionFactoryActualFashioned& getInstructionFactoryNewStyle();
 
-    class Mov : public IInstruction
-    {
-    public:
-        Mov(const TokenList& tokenList) : IInstruction(tokenList, 3), src(tokenList[1]), dest(tokenList[2])
-        {}
-
-        void apply(CPU& cpu) override
-        {
-            dest.affect(cpu, src.evaluate(cpu));
-        }
-
-        OperandAccessor src;
-        OperandAccessor dest;
-    };
-
     class IInstructionWith2InputOperandsAnd1OutputOperand : public IInstruction
     {
     public:
@@ -126,61 +111,6 @@ namespace Coal
         OperandAccessor src1;
         OperandAccessor src2;
         OperandAccessor dest;
-    };
-
-    class Add : public IInstructionWith2InputOperandsAnd1OutputOperand
-    {
-    public:
-        Add(const TokenList& tokenList) : IInstructionWith2InputOperandsAnd1OutputOperand(tokenList)
-        {
-        }
-
-        void apply(CPU& cpu) override
-        {
-            dest.affect(cpu, src1.evaluate(cpu) + src2.evaluate(cpu));
-        }
-    };
-
-    class Sub : public IInstructionWith2InputOperandsAnd1OutputOperand
-    {
-    public:
-        Sub(const TokenList& tokenList) : IInstructionWith2InputOperandsAnd1OutputOperand(tokenList)
-        {
-        }
-
-        void apply(CPU& cpu) override
-        {
-            dest.affect(cpu, src1.evaluate(cpu) - src2.evaluate(cpu));
-        }
-    };
-
-    class Mul : public IInstructionWith2InputOperandsAnd1OutputOperand
-    {
-    public:
-        Mul(const TokenList& tokenList) : IInstructionWith2InputOperandsAnd1OutputOperand(tokenList)
-        {
-        }
-
-        void apply(CPU& cpu) override
-        {
-            dest.affect(cpu, src1.evaluate(cpu) * src2.evaluate(cpu));
-        }
-    };
-
-    class Div : public IInstructionWith2InputOperandsAnd1OutputOperand
-    {
-    public:
-        Div(const TokenList& tokenList) : IInstructionWith2InputOperandsAnd1OutputOperand(tokenList)
-        {
-        }
-
-        void apply(CPU& cpu) override
-        {
-            if (src2.evaluate(cpu) == 0)
-                throw DivisionByZeroException();
-
-            dest.affect(cpu, src1.evaluate(cpu) / src2.evaluate(cpu));
-        }
     };
 
     class IInstructionWith3InputOperands : public IInstruction
@@ -195,38 +125,6 @@ namespace Coal
         OperandAccessor src3;
     };
 
-    class Je : public IInstructionWith3InputOperands
-    {
-    public:
-        Je(const TokenList& tokenList) : IInstructionWith3InputOperands(tokenList)
-        {
-        }
 
-        void apply(CPU& cpu) override
-        {
-            if (src1.evaluate(cpu) == src2.evaluate(cpu))
-            {
-                OperandAccessor ip("r15");
-                ip.affect(cpu, src3.evaluate(cpu) - 1);
-            }
-        }
-    };
-
-    class Jne : public IInstructionWith3InputOperands
-    {
-    public:
-        Jne(const TokenList& tokenList) : IInstructionWith3InputOperands(tokenList)
-        {
-        }
-
-        void apply(CPU& cpu) override
-        {
-            if (src1.evaluate(cpu) != src2.evaluate(cpu))
-            {
-                OperandAccessor ip("r15");
-                ip.affect(cpu, src3.evaluate(cpu) - 1);
-            }
-        }
-    };
     
 }
