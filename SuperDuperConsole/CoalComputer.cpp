@@ -74,58 +74,14 @@ namespace Coal
 
 
 
-    void CPU::process(const InstructionLine& instruction)
+    void CPU::process(const InstructionLine& instructionLine)
     {
-        std::vector<std::string> tokenList = splitIntoTokens(instruction);
-        const std::string& instructionType = tokenList[0];
+        TokenList tokenList = splitIntoTokens(instructionLine);
+        const InstructionType& instructionType = tokenList[0];
 
-        if (instructionType == "MOV")
-        {
-            Mov mov(tokenList);
-            mov.apply(*this);   
-        }
-        else if (instructionType == "ADD")
-        {
-            Add add(tokenList);
-            add.apply(*this);
-        }
-        else if (instructionType == "SUB")
-        {
-            if (tokenList.size() != 4)
-                throw InvalidNumberOfOperandInstruction();
-
-            OperandAccessor src1(tokenList[1]);
-            OperandAccessor src2(tokenList[2]);
-            OperandAccessor dest(tokenList[3]);
-            dest.affect(*this, src1.evaluate(*this) - src2.evaluate(*this));
-        }
-        else if (instructionType == "MUL")
-        {
-            if (tokenList.size() != 4)
-                throw InvalidNumberOfOperandInstruction();
-
-            OperandAccessor src1(tokenList[1]);
-            OperandAccessor src2(tokenList[2]);
-            OperandAccessor dest(tokenList[3]);
-            dest.affect(*this, src1.evaluate(*this) * src2.evaluate(*this));
-        }
-        else if (instructionType == "DIV")
-        {
-            if (tokenList.size() != 4)
-                throw InvalidNumberOfOperandInstruction();
-
-            OperandAccessor src1(tokenList[1]);
-            OperandAccessor src2(tokenList[2]);
-            OperandAccessor dest(tokenList[3]);
-            if (src2.evaluate(*this) == 0)
-                throw DivisionByZeroException();
-
-            dest.affect(*this, src1.evaluate(*this) / src2.evaluate(*this));
-        }
-        else
-        {
-            throw UnknownInstructionException();
-        }
+        IInstruction* instruction = getInstructionFactory().create(instructionType, tokenList);
+        instruction->apply(*this);
+        
         m_registers[15].setValue(m_registers[15].getValue() + 1);
     }
 }
