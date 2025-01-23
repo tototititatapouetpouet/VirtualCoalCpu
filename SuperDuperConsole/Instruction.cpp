@@ -40,6 +40,7 @@ namespace Coal
         registerType("MUL", [](const TokenList& tokenList) { return new Mul(tokenList); });
         registerType("DIV", [](const TokenList& tokenList) { return new Div(tokenList); });
         registerType("JE", [](const TokenList& tokenList) { return new Je(tokenList); });
+        registerType("JNE", [](const TokenList& tokenList) { return new Jne(tokenList); });
     }
 
 
