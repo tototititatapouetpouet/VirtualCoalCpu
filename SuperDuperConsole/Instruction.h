@@ -183,5 +183,33 @@ namespace Coal
         }
     };
 
+    class IInstructionWith3InputOperands : public IInstruction
+    {
+    public:
+        IInstructionWith3InputOperands(const TokenList& tokenList) : IInstruction(tokenList, 4), src1(tokenList[1]), src2(tokenList[2]), src3(tokenList[3])
+        {
+        }
+
+        OperandAccessor src1;
+        OperandAccessor src2;
+        OperandAccessor src3;
+    };
+
+    class Je : public IInstructionWith3InputOperands
+    {
+    public:
+        Je(const TokenList& tokenList) : IInstructionWith3InputOperands(tokenList)
+        {
+        }
+
+        void apply(CPU& cpu) override
+        {
+            if (src1.evaluate(cpu) == src2.evaluate(cpu))
+            {
+                OperandAccessor ip("r15");
+                ip.affect(cpu, src3.evaluate(cpu) - 1);
+            }
+        }
+    };
     
 }

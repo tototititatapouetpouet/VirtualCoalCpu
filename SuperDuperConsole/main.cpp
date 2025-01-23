@@ -9,6 +9,7 @@ int main(int argc, char** argv)
     
     Coal::CPU cpu;
 
+    /*
     Coal::InstructionList instructionList = {
         "MOV 42 r7"
       , "MOV 12 r0"
@@ -20,19 +21,27 @@ int main(int argc, char** argv)
       , "MUL r7 r0 r12"
       , "DIV r7 r0 r11"
       , "DIV r7 0  r11 "
-      , "TOTO"
+      , "JE r0 r1 0"
+    };
+    */
+
+    Coal::InstructionList instructionList = {
+        "MOV 42 r0"
+      , "MOV 42 r1"
+      , "JE r0 r1 4"
+      , "MOV 32 r5"
+      , "MOV 30 r4"
     };
 
     Coal::showCPU(cfb, cpu);
+    cfb.show();
 
     while (!instructionList.empty())
     {
-        Coal::InstructionLine instruction = instructionList.front();
-        instructionList.erase(instructionList.begin());
-        
+        ::getchar();
         try
         {
-            cpu.process(instruction);
+            cpu.processOneInstruction(instructionList);
         }
         catch (std::runtime_error& e)
         {
@@ -42,6 +51,5 @@ int main(int argc, char** argv)
 
         Coal::showCPU(cfb, cpu);
         cfb.show();
-        ::getchar();
     }
 }

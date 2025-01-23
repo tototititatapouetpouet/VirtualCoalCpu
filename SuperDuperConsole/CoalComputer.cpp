@@ -72,16 +72,18 @@ namespace Coal
     const Register& CPU::getRegister(int idx)const { return m_registers[idx]; }
     Register& CPU::getRegister(int idx) { return m_registers[idx]; }
 
+    Register& CPU::getInstructionPointerRegister() { return m_registers[15]; }
+    const Register& CPU::getInstructionPointerRegister() const { return m_registers[15]; }
 
-
-    void CPU::process(const InstructionLine& instructionLine)
+    void CPU::processOneInstruction(const InstructionList& instructionList)
     {
+        const InstructionLine& instructionLine = instructionList[getInstructionPointerRegister().getValue()];
         TokenList tokenList = splitIntoTokens(instructionLine);
         const InstructionType& instructionType = tokenList[0];
 
-        IInstruction* instruction = getInstructionFactory().create(instructionType, tokenList);
+        IInstruction* instruction = getInstructionFactoryNewStyle().create(instructionType, tokenList);
         instruction->apply(*this);
         
-        m_registers[15].setValue(m_registers[15].getValue() + 1);
+        getInstructionPointerRegister().setValue(getInstructionPointerRegister().getValue() + 1);
     }
 }

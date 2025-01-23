@@ -33,7 +33,9 @@ namespace Coal
     public:
         Register& getRegister(int idx);
         const Register& getRegister(int idx) const;
-        void process(const InstructionLine&);
+        void processOneInstruction(const InstructionList&);
+        Register& getInstructionPointerRegister();
+        const Register& getInstructionPointerRegister() const;
 
     private:
         Register m_registers[16];
