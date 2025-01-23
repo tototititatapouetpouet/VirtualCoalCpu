@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <functional>
 
 namespace Coal
 {
@@ -67,6 +68,38 @@ namespace Coal
     };
 
     InstructionFactoryOldSchoolFashioned& getInstructionFactory();
+
+    class InstructionFactoryActualFashioned
+    {
+    public:
+        InstructionFactoryActualFashioned();
+
+        using InstructionCreationRecipe = std::function<IInstruction* (const TokenList& tokenList)>;
+
+        IInstruction* create(const InstructionType& type, const TokenList& tokenList)
+        {
+            auto it = m_recipes.find(type);
+            if (it == m_recipes.end())
+                throw UnknownInstructionException();
+
+            InstructionCreationRecipe recipe = it->second;
+            return recipe(tokenList);
+        }
+
+        void registerType(const InstructionType& type, InstructionCreationRecipe recipe)
+        {
+            auto it = m_recipes.find(type);
+            if (it != m_recipes.end())
+                throw InstructionAlreadyRegistered();
+
+            m_recipes[type] = recipe;
+        }
+
+    private:
+        std::map<InstructionType, InstructionCreationRecipe> m_recipes;
+    };
+
+    InstructionFactoryActualFashioned& getInstructionFactoryNewStyle();
 
     class Mov : public IInstruction
     {
